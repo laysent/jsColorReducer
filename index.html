@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="./style.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <div id='leftContainer'>
+            <div id='imageContainer'>
+                <canvas id='origin' style='display: ""'  ></canvas>
+                <canvas id='result' style='display: none'></canvas>
+            </div>
+            <div id="controllerContainer">
+                <input type='file' />
+                <button disabled>Run</button>
+            </div>
+        </div>
+        <div id="rightContainer">
+            <svg style='display: none'></svg>
+        </div>
+        <script>
+            var app = {
+                'preview': undefined,
+                'origin': undefined,
+                'range': undefined
+            };
+        </script>
+        <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.7/rx.all.js" type="text/javascript"></script>
+        <script src="./src/image.js"  type="text/javascript" ></script>
+        <script src="./src/d3-palette.js" type="text/javascript"></script>
+        <script src="./src/app.js" type="text/javascript"></script>
+    </body>
+</html>
