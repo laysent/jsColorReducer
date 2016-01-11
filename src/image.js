@@ -1,3 +1,4 @@
+"use strict";
 let imageLoader = function(filepathDom) {
     let variable = {
         dom: undefined,
@@ -38,7 +39,7 @@ let imageLoader = function(filepathDom) {
                 let filepath = variable.dom.files[0],
                     fr = new FileReader();
                 variable.onchange && variable.onchange();
-                fr.onload = function() {
+                fr.onload = function(event) {
                     let img = new Image();
                     img.src = event.target.result;
                     img.onload = function() {
@@ -91,13 +92,13 @@ let getRatio = function(maxSize) {
     }
 }
 
-let previewGenerator = function(obj) {
+let previewGenerator = function(obj, size) {
     if (obj.width === undefined || obj.height === undefined) {
         throw "Invalid input parameter!";
     }
     const newCanvas = document.createElement('canvas'),
         context = newCanvas.getContext('2d'),
-        ratio = getRatio(800)(obj.width, obj.height);
+        ratio = getRatio(size || 800)(obj.width, obj.height);
         
     newCanvas.width = obj.width / ratio;
     newCanvas.height = obj.height / ratio;
@@ -131,6 +132,8 @@ let imageConverter = function(canvas) {
     }
     
     let ret = {};
+    
+    ret.subject = new Rx.Subject();
     
     let isCanvas = obj => obj && obj.nodeName && obj.nodeName === 'CANVAS',
         isRange = obj => obj && obj[0] !== undefined && obj[1] !== undefined,
@@ -184,8 +187,9 @@ let imageConverter = function(canvas) {
                 let grey = toGrey(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]);
                 pixelArray[i] = pixelArray[i + 1] = pixelArray[i + 2] = grey;
             }
+            ret.subject.onNext(i / (pixelArray.length / 4));
         }
-        
+        ret.subject.onCompleted();
         context.putImageData(imageData, 0, 0);
         return variable.canvas;
     }

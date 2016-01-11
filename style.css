@@ -2,14 +2,16 @@
     display: block;
     position: absolute;
     left: 0;
-    top: 0;
+    top: 0px;
+    right: 200px;
+    height: 100%;
 }
 
 #imageContainer {
      display: block;
      position: absolute;
      left: 0;
-     top: 0;
+     top: 20px;
      width: 800px;
      height: 800px;
 }
@@ -17,7 +19,7 @@
 #controllerContainer {
     display: block;
     position: relative;
-    top: 800px;
+    top: 0px;
 }
 
 #controllerContainer input {
@@ -32,6 +34,12 @@
 #rightContainer {
     display: block;
     position: absolute;
+    right: 0;
+    top: 0;
+}
+
+#rightContainer svg {
+    display: block;
     right: 0;
     top: 0;
 }

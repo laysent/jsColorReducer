@@ -1,3 +1,4 @@
+"use strict";
 (function() {
   // self: plugin
   // variable: object where configuration stored

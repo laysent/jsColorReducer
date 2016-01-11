@@ -1,3 +1,4 @@
+"use strict";
 let cleanUp = function() {
     Array.prototype.slice.apply(document.querySelectorAll('canvas')).forEach(node => {
         let context = node.getContext('2d');
@@ -15,12 +16,12 @@ let cleanUp = function() {
         document.querySelector('div#imageContainer').removeChild(document.querySelector('div#imageContainer img'));
     }
 }
-let module = imageLoader(document.querySelector('input'))
+let loader = imageLoader(document.querySelector('input'))
 .onchange(() => {
     cleanUp();
 })
 .onsuccess((img) => {
-    app.preview = previewGenerator(img);
+    app.preview = previewGenerator(img, 1400);
     app.origin = image2Canvas(img);
     app.preview.id = 'origin';
     app.preview.style.display = '';
@@ -35,14 +36,16 @@ let module = imageLoader(document.querySelector('input'))
 .regist();
 
 let palette = d3.palette()
-.radius(250)
+.radius(100)
 .dom(document.querySelector('svg'))
 .selectionChangedObservable(o => {
     o.debounce(100).forEach(d => {
-        const canvas = imageConverter(image2Canvas(app.preview))
-                        .range(d)
-                        .convert(),
+        const converter = imageConverter(image2Canvas(app.preview))
+                        .range(d),
+                        //.convert(),
                 previousCanvas = document.querySelector('canvas#result');
+        converter.subject.sample(50).forEach(i => { console.log('percentage: ' + i); });
+        const canvas = converter.convert();
         app.range = d;
         canvas.style.display = '';
         canvas.id = 'result';
@@ -54,8 +57,8 @@ let palette = d3.palette()
 });
 d3.select('svg')
 .attr({
-    'width': 500,
-    'height': 500
+    'width': 200,
+    'height': 200
 })
 .call(palette);
 
