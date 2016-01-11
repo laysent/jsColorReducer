@@ -4,19 +4,32 @@
         <link href="./style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <div id='leftContainer'>
-            <div id='imageContainer'>
-                <canvas id='origin' style='display: ""'  ></canvas>
-                <canvas id='result' style='display: none'></canvas>
-            </div>
-            <div id="controllerContainer">
-                <input type='file' accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|images/*" />
-                <button disabled>Run</button>
-            </div>
+        <div class="toolbar">
+            <span class="toolbar-left">
+                <span class="icon-group">
+                    <i class="icon-import"></i>
+                    <i class="icon-export"></i>
+                </span>
+            </span>
+            <span class="toolbar-center">
+                <div class="info">
+                    <span class="info-resolution">111 x 11</span>
+                    <span class="info-zoom">98%</span>
+                </div>
+            </span>
+            <span class="toolbar-right">
+                <span class="icon-group">
+                    <i class="icon-compare"></i>
+                    <i class="icon-origin"></i>
+                </span>
+            </span>
         </div>
-        <div id="rightContainer">
-            <svg style='display: none'></svg>
+        <div class='viewport'>
+            <canvas id='origin' style='display: ""'  ></canvas>
+            <canvas id='result' style='display: none'></canvas>
         </div>
+        <input type='file' accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|images/*" />
+        <svg style='display: none'></svg>
         <script>
             var app = {
                 'preview': undefined,

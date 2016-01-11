@@ -10,10 +10,10 @@ let cleanUp = function() {
     const selection = document.querySelector('svg g.selection');
     selection && document.querySelector('svg').removeChild(selection);
     
-    document.querySelector('button').disabled = true;
+    document.querySelector('.icon-export').disabled = true;
     
-    if (document.querySelector('div#imageContainer img')) {
-        document.querySelector('div#imageContainer').removeChild(document.querySelector('div#imageContainer img'));
+    if (document.querySelector('div.viewport img')) {
+        document.querySelector('div.viewport').removeChild(document.querySelector('div.viewport img'));
     }
 }
 let loader = imageLoader(document.querySelector('input'))
@@ -21,7 +21,7 @@ let loader = imageLoader(document.querySelector('input'))
     cleanUp();
 })
 .onsuccess((img) => {
-    app.preview = previewGenerator(img, 1400);
+    app.preview = previewGenerator(img, 800);
     app.origin = image2Canvas(img);
     app.preview.id = 'origin';
     app.preview.style.display = '';
@@ -52,7 +52,7 @@ let palette = d3.palette()
         previousCanvas.parentNode.replaceChild(canvas, previousCanvas);
         document.querySelector('canvas#origin').style.display = 'none';
         
-        document.querySelector('button').disabled = false;
+        document.querySelector('.icon-export').disabled = false;
     });
 });
 d3.select('svg')
@@ -62,7 +62,7 @@ d3.select('svg')
 })
 .call(palette);
 
-document.querySelector('button').onclick = function() {
+document.querySelector('.icon-export').onclick = function() {
     const canvas = imageConverter(image2Canvas(app.origin))
                         .range(app.range)
                         .convert(),
@@ -71,6 +71,34 @@ document.querySelector('button').onclick = function() {
         image.style.width = canvas.width / ratio + 'px';
         image.style.height = canvas.height / ratio + 'px';
         cleanUp();
-        document.querySelector('div#imageContainer').appendChild(image);
+        document.querySelector('div.viewport').appendChild(image);
         document.querySelector('svg').style.display = 'none';               
 }
+
+Array.prototype.slice.apply(document.querySelectorAll('i')).forEach(i => {
+   i.mousedown = Rx.Observable.fromEvent(i, 'mousedown');
+   i.mousedown.forEach(e => {
+       i.className = i.className.split(' ')[0] + ' pressed';
+   });
+   i.mouseup = Rx.Observable.fromEvent(i, 'mouseup');
+   i.mouseup.forEach(e => {
+       i.className = i.className.split(' ')[0];
+   }); 
+});
+
+document.querySelector('.icon-import').onclick = function() {
+    document.querySelector('input').click();
+}
+
+let compare = document.querySelector('.icon-compare');
+let origin = document.querySelector('.icon-origin');
+
+origin.mousedown.forEach(e => {
+    document.getElementById('origin').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+})
+
+origin.mouseup.forEach(e => {
+    document.getElementById('origin').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+})

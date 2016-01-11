@@ -1,45 +1,149 @@
-#leftContainer {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0px;
-    right: 200px;
+html, body {
+    margin: 0;
+    padding: 0;
     height: 100%;
-}
-
-#imageContainer {
-     display: block;
-     position: absolute;
-     left: 0;
-     top: 20px;
-     width: 800px;
-     height: 800px;
-}
-
-#controllerContainer {
-    display: block;
+    background-color: rgba(40,40,40,.9);
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    overflow: hidden;
     position: relative;
-    top: 0px;
 }
 
-#controllerContainer input {
-    float: left;
+.toolbar {
+    position: absolute;
+    height: 40px;
+    padding: 4px;
+    left: 0px;
+    right: 0px;
+    font-size: 13px;
+    background-color: rgba(40,40,40,.9);
+    border-bottom: 1px solid #000;
+    cursor: default;
+    z-index: 3;
+    display: flex;
 }
 
-#controllerContainer button {
-    float: left;
-    margin-left: 10px;
+.toolbar .toolbar-left {
+    height: 100%;
+    display: flex;
 }
 
-#rightContainer {
+.toolbar .toolbar-center {
+    position: relative;
+    height: 100%;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 400;
+    flex: 1;
+    line-height: 300px;
+    box-sizing: border-box;
+    overflow: hidden;
+    color: #ccc;
+}
+
+.toolbar-center .info {
+    line-height: 18px;
+}
+
+.toolbar-center .info > span {
+    transform: translate(0px, 8px);
+    display: inline-block;
+    padding: 0 4px;
+    margin: 0 4px;
+    font-size: 13px;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+
+.toolbar-right {
+    height: 100%;
+    text-align: right;
+    display: flex;
+}
+
+i {
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    width: 32px;
+    height: 32px;
+    background-clip: padding-box;
+    margin: 0;
+    opacity: 1;
+    cursor: default;
+}
+
+.icon-group {
+    display: inline-block;
+    margin: 4px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.icon-group i {
+    border: none;
+    border-radius: 0;
+    margin-bottom: -3px;
+    padding: 0 2px;
+    background-color: rgba(255,255,255,.1);
+}
+
+.icon-group i:hover {
+    background-color: rgba(255, 255, 255, .15)
+}
+
+.icon-group i.pressed {
+    background-color: rgba(255, 255, 255, .55);
+}
+
+.icon-import {
+    background-image: url("./img/import.png");
+    background-size: 17px;
+}
+
+.icon-export {
+    background-image: url('./img/export.png');
+    background-size: 17px;
+}
+
+.icon-compare {
+    background-image: url('./img/before-after-split.png');
+    background-size: 17px;
+    display: none;
+}
+
+.icon-origin {
+    background-image: url('./img/before-after.png');
+    background-size: 17px;
+}
+
+.viewport {
     display: block;
     position: absolute;
-    right: 0;
-    top: 0;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    margin-top: 48px;
+    padding-top: 10px;
 }
 
-#rightContainer svg {
+.viewport canvas, .viewport img {
+    display: block;
+    margin: 0 auto;
+}
+
+input {
+    display: none;
+}
+
+svg {
     display: block;
     right: 0;
-    top: 0;
+    bottom: 0;
+    position: absolute;
+    z-index: 3;
 }
