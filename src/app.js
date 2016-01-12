@@ -15,6 +15,8 @@ let cleanUp = function() {
     if (document.querySelector('div.viewport img')) {
         document.querySelector('div.viewport').removeChild(document.querySelector('div.viewport img'));
     }
+    
+    document.querySelector('.loading').style.display = 'none';
 }
 let loader = imageLoader(document.querySelector('input'))
 .onchange(() => {
@@ -64,17 +66,20 @@ d3.select('svg')
 .call(palette);
 
 document.querySelector('.icon-export').onclick = function() {
-    const canvas = imageConverter(image2Canvas(app.origin))
-                        .range(app.range)
-                        .convert(),
-            image = canvas2Image(canvas),
-            rect = document.querySelector('.viewport').getBoundingClientRect(),
-            ratio = Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
-        image.style.width = canvas.width / ratio + 'px';
-        image.style.height = canvas.height / ratio + 'px';
-        cleanUp();
-        document.querySelector('div.viewport').appendChild(image);
-        document.querySelector('svg').style.display = 'none';               
+    document.querySelector('.loading').style.display = 'block';
+    setTimeout(() => {
+        const canvas = imageConverter(image2Canvas(app.origin))
+                            .range(app.range)
+                            .convert(),
+                image = canvas2Image(canvas),
+                rect = document.querySelector('.viewport').getBoundingClientRect(),
+                ratio = Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
+            image.style.width = canvas.width / ratio + 'px';
+            image.style.height = canvas.height / ratio + 'px';
+            cleanUp();
+            document.querySelector('div.viewport').appendChild(image);
+            document.querySelector('svg').style.display = 'none';   
+    }, 0);    
 }
 
 Array.prototype.slice.apply(document.querySelectorAll('i')).forEach(i => {

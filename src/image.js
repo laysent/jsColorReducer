@@ -128,12 +128,10 @@ let image2Canvas = function(img) {
 let imageConverter = function(canvas) {
     let variable = {
         canvas: undefined,
-        range: undefined
+        range: undefined,
     }
     
     let ret = {};
-    
-    ret.subject = new Rx.Subject();
     
     let isCanvas = obj => obj && obj.nodeName && obj.nodeName === 'CANVAS',
         isRange = obj => obj && obj[0] !== undefined && obj[1] !== undefined,
@@ -180,16 +178,13 @@ let imageConverter = function(canvas) {
         const context = variable.canvas.getContext('2d'),
             imageData = context.getImageData(0, 0, variable.canvas.width, variable.canvas.height),
             pixelArray = imageData.data;
-            
         for (let i = 0; i < pixelArray.length; i += 4) {
             let hue = getHue(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]);
             if (!inRange(hue)) {
                 let grey = toGrey(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]);
                 pixelArray[i] = pixelArray[i + 1] = pixelArray[i + 2] = grey;
             }
-            ret.subject.onNext(i / (pixelArray.length / 4));
         }
-        ret.subject.onCompleted();
         context.putImageData(imageData, 0, 0);
         return variable.canvas;
     }
