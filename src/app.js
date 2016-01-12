@@ -29,6 +29,9 @@ let loader = imageLoader(document.querySelector('input'))
     const dom = document.querySelector('canvas#origin');
     dom.parentNode.replaceChild(app.preview, dom);
     document.querySelector('svg').style.display = '';
+    
+    document.querySelector('.info-zoom').innerText = `${Math.floor((100 / getRatio(800)(img.width, img.height)))}%`
+    document.querySelector('.info-resolution').innerText = `${img.width} x ${img.height}`
 })
 .onfailed(() => {
     console.log('failed!');
@@ -40,12 +43,10 @@ let palette = d3.palette()
 .dom(document.querySelector('svg'))
 .selectionChangedObservable(o => {
     o.debounce(100).forEach(d => {
-        const converter = imageConverter(image2Canvas(app.preview))
-                        .range(d),
-                        //.convert(),
+        const canvas = imageConverter(image2Canvas(app.preview))
+                        .range(d)
+                        .convert(),
                 previousCanvas = document.querySelector('canvas#result');
-        converter.subject.sample(50).forEach(i => { console.log('percentage: ' + i); });
-        const canvas = converter.convert();
         app.range = d;
         canvas.style.display = '';
         canvas.id = 'result';
@@ -67,7 +68,8 @@ document.querySelector('.icon-export').onclick = function() {
                         .range(app.range)
                         .convert(),
             image = canvas2Image(canvas),
-            ratio = getRatio(800)(canvas.width, canvas.height);
+            rect = document.querySelector('.viewport').getBoundingClientRect(),
+            ratio = Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
         image.style.width = canvas.width / ratio + 'px';
         image.style.height = canvas.height / ratio + 'px';
         cleanUp();

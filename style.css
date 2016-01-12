@@ -100,12 +100,12 @@ i {
 }
 
 .icon-import {
-    background-image: url("./img/import.png");
+    background-image: url("./img/upload.png");
     background-size: 17px;
 }
 
 .icon-export {
-    background-image: url('./img/export.png');
+    background-image: url('./img/download.png');
     background-size: 17px;
 }
 
@@ -116,7 +116,7 @@ i {
 }
 
 .icon-origin {
-    background-image: url('./img/before-after.png');
+    background-image: url('./img/switch.png');
     background-size: 17px;
 }
 
