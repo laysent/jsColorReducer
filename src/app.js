@@ -109,3 +109,7 @@ origin.mouseup.forEach(e => {
     document.getElementById('origin').style.display = 'none';
     document.getElementById('result').style.display = 'block';
 })
+
+dragndrop(document.querySelector('.viewport'),
+document.querySelector('#dragndrop'),
+document.querySelector('input'));
