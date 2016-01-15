@@ -113,3 +113,5 @@ origin.mouseup.forEach(e => {
 dragndrop(document.querySelector('.viewport'),
 document.querySelector('#dragndrop'),
 document.querySelector('input'));
+
+document.body.addEventListener('touchmove', e => {e.preventDefault()}, true);

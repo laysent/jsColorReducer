@@ -120,7 +120,10 @@
               paths.attr('d', myArc);
               return;
           }
-      }
+      },
+      // extract point from event result:
+      // For mobile usage, point value stored in .changedTouches attribute
+      pointExtractor = p => p.changedTouches ? p.changedTouches[0] : p;
       
       var palette = function(svg) {
           svg.on('mousedown', function() { event.preventDefault ? event.preventDefault() : event.returnValue = false });
@@ -147,20 +150,26 @@
           
           // Select feature requires RxJS
           if (Rx && Rx.Observable && variable.dom) {
-              var MouseDowns = Rx.Observable.fromEvent(variable.dom, 'mousedown'),
-                  MouseUps = Rx.Observable.fromEvent(window, 'mouseup'),
-                  MouseMoves = Rx.Observable.fromEvent(variable.dom, 'mousemove'),
-                  MouseDrags = MouseDowns.concatMap(function(startPoint) {
-                      return MouseMoves.startWith(null)
-                        .takeUntil(MouseUps)
+              var Downs = Rx.Observable.merge( // merge touch and mouse events together
+                    Rx.Observable.fromEvent(variable.dom, 'mousedown'),
+                    Rx.Observable.fromEvent(variable.dom, 'touchstart')),
+                  Ups = Rx.Observable.merge(
+                      Rx.Observable.fromEvent(window, 'mouseup'),
+                      Rx.Observable.fromEvent(window, 'touchend')),
+                  Moves = Rx.Observable.merge(
+                      Rx.Observable.fromEvent(variable.dom, 'mousemove'),
+                      Rx.Observable.fromEvent(variable.dom, 'touchmove')),
+                  Drags = Downs.concatMap(function(startPoint) {
+                      return Moves.startWith(null)
+                        .takeUntil(Ups)
                         .map(function(movePoint) {
                             return movePoint == null ? null : {
-                                'x': movePoint.clientX,
-                                'y': movePoint.clientY
+                                'x': pointExtractor(movePoint).clientX,
+                                'y': pointExtractor(movePoint).clientY
                             };
                         })
                   }),
-                  CrossOrigin = MouseDrags.map(function(point) {
+                  CrossOrigin = Drags.map(function(point) {
                       // Originally, the drag observable continues from one drag event to next drag event.
                       // The end point of previous event and the beginning point of current event will
                       // construct a pair via .pairwise() call later, and might produce incorrect result
@@ -192,20 +201,20 @@
                       startAngle = undefined,
                       selectedRange = undefined;
                   
-                  MouseDowns.forEach(function(startPoint) {
+                  Downs.forEach(function(startPoint) {
                       flag = false;
-                      drawFunction = draw(svg, startPoint.clientX, startPoint.clientY);
-                      startAngle = angle(startPoint.clientX, startPoint.clientY);
+                      drawFunction = draw(svg, pointExtractor(startPoint).clientX, pointExtractor(startPoint).clientY);
+                      startAngle = angle(pointExtractor(startPoint).clientX, pointExtractor(startPoint).clientY);
                   });
                   CrossOrigin.forEach(function(bool) {
                       flag = !flag;
                   });
-                  MouseDrags.forEach(function(dragPoint) {
+                  Drags.forEach(function(dragPoint) {
                       if (dragPoint !== null) {
                         drawFunction(dragPoint.x, dragPoint.y, flag);
                       }
                   });
-                  var observable = MouseDrags.map(function(dragPoint) {
+                  var observable = Drags.map(function(dragPoint) {
                       return dragPoint == null ? null : angle(dragPoint.x, dragPoint.y);
                   }).distinctUntilChanged().map(function(endAngle) {
                       if (endAngle == null) { 
