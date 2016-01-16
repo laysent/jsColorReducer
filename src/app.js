@@ -23,17 +23,20 @@ let loader = imageLoader(document.querySelector('input'))
     cleanUp();
 })
 .onsuccess((img) => {
-    app.preview = previewGenerator(img, 800);
-    app.origin = image2Canvas(img);
-    app.preview.id = 'origin';
-    app.preview.style.display = '';
-    document.querySelector('canvas#result').style.display = 'none';
-    const dom = document.querySelector('canvas#origin');
-    dom.parentNode.replaceChild(app.preview, dom);
-    document.querySelector('svg').style.display = '';
-    
-    document.querySelector('.info-zoom').innerText = `${Math.floor((100 / getRatio(800)(img.width, img.height)))}%`
-    document.querySelector('.info-resolution').innerText = `${img.width} x ${img.height}`
+    EXIF.getData(img, function() {
+        app.rotate = rotateHelper(EXIF.getTag(this, 'Orientation'));
+        app.preview = previewGenerator(img, 800);
+        app.origin = image2Canvas(img);
+        app.preview.id = 'origin';
+        app.preview.style.display = '';
+        document.querySelector('canvas#result').style.display = 'none';
+        const dom = document.querySelector('canvas#origin');
+        dom.parentNode.replaceChild(app.preview, dom);
+        document.querySelector('svg').style.display = '';
+        
+        document.querySelector('.info-zoom').innerText = `${Math.floor((100 / getRatio(800)(img.width, img.height)))}%`
+        document.querySelector('.info-resolution').innerText = app.rotate.toString(img.width, img.height);
+    })
 })
 .onfailed(() => {
     console.log('failed!');
@@ -73,13 +76,18 @@ document.querySelector('.icon-export').onclick = function() {
                             .convert(),
                 image = canvas2Image(canvas),
                 rect = document.querySelector('.viewport').getBoundingClientRect(),
-                ratio = Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
+                ifRotate = app.rotate.ifRotate,
+                ratio = ifRotate ? 
+                Math.max(1, canvas.height / rect.width, canvas.width / rect.height) :
+                Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
             image.style.width = canvas.width / ratio + 'px';
             image.style.height = canvas.height / ratio + 'px';
+            image.style.transform = ifRotate ? `rotate(${app.rotate.angleDeg})` : '';
+            image.style.marginTop = ifRotate ? (((canvas.width - canvas.height) / 2 / ratio) + 'px') : '0px'
             cleanUp();
             document.querySelector('div.viewport').appendChild(image);
             document.querySelector('svg').style.display = 'none';   
-    }, 0);    
+    }, 100);    
 }
 
 Array.prototype.slice.apply(document.querySelectorAll('i')).forEach(i => {

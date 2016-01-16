@@ -99,11 +99,9 @@ let previewGenerator = function(obj, size) {
     const newCanvas = document.createElement('canvas'),
         context = newCanvas.getContext('2d'),
         ratio = getRatio(size || 800)(obj.width, obj.height);
-        
-    newCanvas.width = obj.width / ratio;
-    newCanvas.height = obj.height / ratio;
     
-    context.drawImage(obj, 0, 0, newCanvas.width, newCanvas.height);
+    // context.drawImage(obj, 0, 0, newCanvas.width, newCanvas.height);
+    app.rotate.display(obj, newCanvas, ratio);
     
     return newCanvas;
 };
@@ -121,6 +119,7 @@ let image2Canvas = function(img) {
     canvas.width = img.width;
     canvas.height = img.height;
     canvas.style.display = 'none';
+
     context.drawImage(img, 0, 0);
     return canvas;
 };
