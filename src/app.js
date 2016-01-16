@@ -82,8 +82,9 @@ document.querySelector('.icon-export').onclick = function() {
                 Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
             image.style.width = canvas.width / ratio + 'px';
             image.style.height = canvas.height / ratio + 'px';
-            image.style.transform = ifRotate ? `rotate(${app.rotate.angleDeg})` : '';
-            image.style.marginTop = ifRotate ? (((canvas.width - canvas.height) / 2 / ratio) + 'px') : '0px'
+            image.style.transform = app.rotate.angle !== 0 ? `rotate(${app.rotate.angleDeg})` : '';
+            image.style.marginTop = ifRotate ? (canvas.width - canvas.height) / 2 / ratio + 'px' : '0px';
+            image.style.marginLeft = ( document.body.getBoundingClientRect().width - canvas.width / ratio ) / 2 + 'px'
             cleanUp();
             document.querySelector('div.viewport').appendChild(image);
             document.querySelector('svg').style.display = 'none';   
