@@ -25,11 +25,12 @@
             </span>
         </div>
         <div class='viewport'>
-            <div id='dragndrop'></div>
-            <canvas id='origin' style='display: ""'  ></canvas>
+            <canvas id='origin' style='display: none'  ></canvas>
             <canvas id='result' style='display: none'></canvas>
+            <div id='dragndrop'></div>
         </div>
         <input type='file' accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|images/*" />
+        <canvas id='preview'></canvas>
         <svg style='display: none'></svg>
         <div class="loading" style="display: none">
             <img src='./img/loading.png'/>

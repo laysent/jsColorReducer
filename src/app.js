@@ -24,18 +24,29 @@ let loader = imageLoader(document.querySelector('input'))
 })
 .onsuccess((img) => {
     EXIF.getData(img, function() {
-        app.rotate = rotateHelper(EXIF.getTag(this, 'Orientation'));
+        app.rotate = rotateHelper(
+            EXIF.getTag(this, 'Orientation')
+            );
         app.preview = previewGenerator(img, 800);
-        app.origin = image2Canvas(img);
         app.preview.id = 'origin';
         app.preview.style.display = '';
+        
+        app.origin = image2Canvas(img);
+        
         document.querySelector('canvas#result').style.display = 'none';
         const dom = document.querySelector('canvas#origin');
         dom.parentNode.replaceChild(app.preview, dom);
         document.querySelector('svg').style.display = '';
+        let result = document.querySelector('canvas#result');
+        result.width = app.preview.width;
+        result.height = app.preview.height;
         
         document.querySelector('.info-zoom').innerText = `${Math.floor((100 / getRatio(800)(img.width, img.height)))}%`
         document.querySelector('.info-resolution').innerText = app.rotate.toString(img.width, img.height);
+        
+        app.preivewer = imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
+            app.rotate).start();
+        document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
     })
 })
 .onfailed(() => {
@@ -53,12 +64,13 @@ let palette = d3.palette()
                         .convert(),
                 previousCanvas = document.querySelector('canvas#result');
         app.range = d;
-        canvas.style.display = '';
-        canvas.id = 'result';
-        previousCanvas.parentNode.replaceChild(canvas, previousCanvas);
+        previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
         document.querySelector('canvas#origin').style.display = 'none';
+        previousCanvas.style.display = '';
         
         document.querySelector('.icon-export').disabled = false;
+        
+        app.preivewer.canvas(previousCanvas).range(d);
     });
 });
 d3.select('svg')
@@ -84,7 +96,7 @@ document.querySelector('.icon-export').onclick = function() {
             image.style.height = canvas.height / ratio + 'px';
             image.style.transform = app.rotate.angle !== 0 ? `rotate(${app.rotate.angleDeg})` : '';
             image.style.marginTop = ifRotate ? (canvas.width - canvas.height) / 2 / ratio + 'px' : '0px';
-            image.style.marginLeft = ( document.body.getBoundingClientRect().width - canvas.width / ratio ) / 2 + 'px'
+            image.style.marginLeft = ( document.body.getBoundingClientRect().width - canvas.width / ratio ) / 2 + 'px';
             cleanUp();
             document.querySelector('div.viewport').appendChild(image);
             document.querySelector('svg').style.display = 'none';   

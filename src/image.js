@@ -192,3 +192,87 @@ let imageConverter = function(canvas) {
     
     return ret;
 }
+
+let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
+    let variable = {
+        canvas: undefined,
+        preview: undefined,
+        origin: undefined,
+    }
+    let ret = {};
+    let isCanvas = obj => obj && obj.nodeName && obj.nodeName === 'CANVAS',
+        helper = keyword => function(obj) {
+            if (!isCanvas(obj)) throw "Not Canvas!";
+            variable[keyword] = obj;
+            return ret;
+        };
+    variable.rect = rect;
+    ret.start = function() {
+        let move = Rx.Observable.fromEvent(variable.canvas, 'mousemove');
+        let rect = variable.rect;
+        const size = 200;
+        let previewContext = variable.preview.getContext('2d');
+        let originContext = variable.origin.getContext('2d');
+        let toGrey = (r, g, b) => r * 0.299 + g * 0.587 + b * 0.114;
+        let getHue = function(r, g, b) {
+            const max = Math.max(r, g, b),
+                min = Math.min(r, g, b);
+            if (max == min) 
+                return 0;
+            else if (max == r)
+                return 60 * (g - b) / (max - min) + ((g >= b) ? 0 : 360);
+            else if (max == g)
+                return 60 * (b - r) / (max - min) + 120;
+            else
+                return 60 * (r - g) / (max - min) + 240;
+        };
+        let inRange = (r, g, b) => {
+            const hue = getHue(r, g, b);
+            const val = hue / 360 * (2 * Math.PI),
+                inRange = (val) => variable.range[0] <= val && variable.range[1] >= val;
+            return inRange(val) || inRange(val - 2 * Math.PI);
+        };
+        let ratio = getRatio(800)(variable.origin.width, variable.origin.height);
+        variable.preview.width = size;
+        variable.preview.height = size;
+        variable.preview.style.display = 'block';
+        
+        move.sample(50).map(p => {
+            return {'x': p.clientX - rect.left, 'y': p.clientY - rect.top}
+        }).forEach(p => {
+            if (!variable.range) return;
+            let position = rotateHelper.position(p, variable.canvas)
+            let originPixel = originContext.getImageData(
+                Math.max(position.x * ratio - size / 2, 0),
+                Math.max(position.y * ratio - size / 2, 0),
+                size, size),
+             originData = originPixel.data;
+            for(let i = 0; i < originData.length; i+=4) {
+                if (!inRange(originData[i], originData[i+1], originData[i+2])) {
+                    originData[i] = originData[i+1] = originData[i+2] = toGrey(
+                        originData[i],originData[i+1],originData[i+2]
+                    );
+                }
+            }
+            previewContext.putImageData(originPixel, 0, 0);
+            previewContext.rotate(rotateHelper.angle);
+            previewContext.drawImage(variable.preview, 0, 0);
+        });
+        return ret;
+    }
+    
+    Object.keys(variable).forEach(keyword => {
+        ret[keyword] = helper(keyword);
+    })
+    
+    ret.range = function(range) {
+        variable.range = range;
+        return ret;
+    }
+    
+    ret.canvas(canvas);
+    ret.origin(origin);
+    ret.preview(preview);
+    
+    return ret;
+}
