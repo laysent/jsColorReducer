@@ -190,3 +190,11 @@ canvas#preview {
     bottom: 0;
     left: 0;
 }
+
+.selection {
+    position: fixed;
+    display: block;
+    border-width: 5px;
+    border-style: dashed;
+    border-color: blue;
+}

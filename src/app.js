@@ -18,12 +18,27 @@ let cleanUp = function() {
     
     document.querySelector('.loading').style.display = 'none';
 }
+
+let render = function() {
+        const canvas = imageConverter(image2Canvas(app.preview))
+                    .range(app.range)
+                    .rect(document.querySelector('canvas#result').getBoundingClientRect())
+                    .selection(app.selection)
+                    .convert(),
+            previousCanvas = document.querySelector('canvas#result');
+        previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        previousCanvas.style.display = '';
+                
+        app.preivewer.canvas(previousCanvas).range(app.range);
+}
+
 let loader = imageLoader(document.querySelector('input'))
 .onchange(() => {
     cleanUp();
 })
 .onsuccess((img) => {
     EXIF.getData(img, function() {
+        app.range = [0, 2 * Math.PI];
         app.rotate = rotateHelper(
             EXIF.getTag(this, 'Orientation')
             );
@@ -33,11 +48,18 @@ let loader = imageLoader(document.querySelector('input'))
         
         app.origin = image2Canvas(img);
         
-        document.querySelector('canvas#result').style.display = 'none';
         const dom = document.querySelector('canvas#origin');
         dom.parentNode.replaceChild(app.preview, dom);
+        const rect = document.querySelector('canvas#origin').getBoundingClientRect();
+        app.selection = {
+            'x0': rect.left,
+            'x1': rect.left + rect.width,
+            'y0': rect.top,
+            'y1': rect.top + rect.height
+        }
         document.querySelector('svg').style.display = '';
         let result = document.querySelector('canvas#result');
+        result.style.display = 'none';
         result.width = app.preview.width;
         result.height = app.preview.height;
         
@@ -47,6 +69,16 @@ let loader = imageLoader(document.querySelector('input'))
         app.preivewer = imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
             app.rotate).start();
         document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
+        
+        select(
+            document.querySelector('canvas#origin'), 
+            document.querySelector('div.selection'),
+            selectionObservable => {
+                selectionObservable.debounce(100).subscribe(selection => {
+                    app.selection = selection;
+                    render();
+                })
+            });
     })
 })
 .onfailed(() => {
@@ -59,18 +91,9 @@ let palette = d3.palette()
 .dom(document.querySelector('svg'))
 .selectionChangedObservable(o => {
     o.debounce(100).forEach(d => {
-        const canvas = imageConverter(image2Canvas(app.preview))
-                        .range(d)
-                        .convert(),
-                previousCanvas = document.querySelector('canvas#result');
         app.range = d;
-        previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
         document.querySelector('canvas#origin').style.display = 'none';
-        previousCanvas.style.display = '';
-        
-        document.querySelector('.icon-export').disabled = false;
-        
-        app.preivewer.canvas(previousCanvas).range(d);
+        render();
     });
 });
 d3.select('svg')
