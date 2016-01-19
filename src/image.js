@@ -110,15 +110,26 @@ let canvas2Image = function(canvas) {
     return image;
 }
 
-let image2Canvas = function(img) {
+let image2Canvas = function(img, rotate) {
     if (!img) return undefined;
     const canvas = document.createElement('canvas'),
         context = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
     canvas.style.display = 'none';
-
+    if (!!rotate) {
+        canvas.width = rotate.ifRotate ? img.height : img.width;
+        canvas.height = rotate.ifRotate ? img.width : img.height;
+        context.translate(img.width / 2, img.height / 2);
+        context.rotate(rotate.angle);
+        if (rotate.ifRotate) {
+            context.drawImage(img, -img.height / 2, -img.width / 2, img.height, img.width);
+        } else {
+            context.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+        }
+    } else {
+        canvas.width = img.width;
+        canvas.height = img.height;
     context.drawImage(img, 0, 0);
+    }
     return canvas;
 };
 
@@ -146,8 +157,7 @@ let imageConverter = function(canvas) {
     let variable = {
         canvas: undefined,
         range: undefined,
-        selection: undefined,
-        rect: undefined
+        selection: undefined
     }
     
     let ret = {};
@@ -188,23 +198,16 @@ let imageConverter = function(canvas) {
         return ret;
     }
     
-    ret.rect = function(rect) {
-        variable.rect = rect;
-        return ret;
-    }
-    
     ret.selection = function(selection) {
         if (selection.x0 === undefined || selection.x1 === undefined ||
             selection.y0 === undefined || selection.y1 === undefined ) throw "Not Selection!";
         else if (!variable.canvas) throw "Canvas need to be defined first!";
-        else if (!variable.rect) throw "No Rect";
         else {
-            let rect = variable.rect;
             variable.selection = {
-                'x0': Math.max(Math.min(selection.x0, rect.left + rect.width), rect.left) - rect.left,
-                'y0': Math.max(Math.min(selection.y0, rect.height + rect.top), rect.top) - rect.top,
-                'x1': Math.min(Math.max(selection.x1, rect.left), rect.left + rect.width) - rect.left,
-                'y1': Math.min(Math.max(selection.y1, rect.top), rect.top + rect.height) - rect.top
+                'x0': Math.max(Math.min(selection.x0, variable.canvas.width), 0),
+                'y0': Math.max(Math.min(selection.y0, variable.canvas.height), 0),
+                'x1': Math.min(Math.max(selection.x1, 0), variable.canvas.width),
+                'y1': Math.min(Math.max(selection.y1, 0), variable.canvas.height)
             };
         }
         return ret;

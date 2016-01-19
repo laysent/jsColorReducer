@@ -17,13 +17,25 @@ let cleanUp = function() {
     }
     
     document.querySelector('.loading').style.display = 'none';
+    
+    let selectionDom = document.querySelector('div.selection');
+    selectionDom.style.width = '0px';
+    selectionDom.style.height = '0px';
+    selectionDom.style.top = '0px';
+    selectionDom.style.left = '0px';
+    
 }
 
-let render = function() {
-        const canvas = imageConverter(image2Canvas(app.preview))
+let previewRender = function() {
+        const rect = app.rect,
+            canvas = imageConverter(image2Canvas(app.preview))
                     .range(app.range)
-                    .rect(document.querySelector('canvas#result').getBoundingClientRect())
-                    .selection(app.selection)
+                    .selection({
+                        'x0': app.selection.x0 - rect.left,
+                        'x1': app.selection.x1 - rect.left,
+                        'y0': app.selection.y0 - rect.top,
+                        'y1': app.selection.y1 - rect.top
+                    })
                     .convert(),
             previousCanvas = document.querySelector('canvas#result');
         previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
@@ -51,6 +63,7 @@ let loader = imageLoader(document.querySelector('input'))
         const dom = document.querySelector('canvas#origin');
         dom.parentNode.replaceChild(app.preview, dom);
         const rect = document.querySelector('canvas#origin').getBoundingClientRect();
+        app.rect = rect;
         app.selection = {
             'x0': rect.left,
             'x1': rect.left + rect.width,
@@ -76,7 +89,8 @@ let loader = imageLoader(document.querySelector('input'))
             selectionObservable => {
                 selectionObservable.debounce(100).subscribe(selection => {
                     app.selection = selection;
-                    render();
+                    previewRender();
+                    document.querySelector('canvas#origin').style.display = 'none';
                 })
             });
     })
@@ -92,8 +106,8 @@ let palette = d3.palette()
 .selectionChangedObservable(o => {
     o.debounce(100).forEach(d => {
         app.range = d;
+        previewRender();
         document.querySelector('canvas#origin').style.display = 'none';
-        render();
     });
 });
 d3.select('svg')
@@ -106,19 +120,25 @@ d3.select('svg')
 document.querySelector('.icon-export').onclick = function() {
     document.querySelector('.loading').style.display = 'block';
     setTimeout(() => {
-        const canvas = imageConverter(image2Canvas(app.origin))
+        const previewRect = (document.querySelector('canvas#result').style.display == '' ?
+            document.querySelector('canvas#result') : document.querySelector('canvas#origin'))
+            .getBoundingClientRect(),
+            zoomRatio = getRatio(800)(app.origin.width, app.origin.height),
+            canvas = imageConverter(image2Canvas(app.origin, app.rotate))
                             .range(app.range)
+                            .selection({
+                                'x0': (app.selection.x0 - previewRect.left) * zoomRatio,
+                                'x1': (app.selection.x1 - previewRect.left) * zoomRatio,
+                                'y0': (app.selection.y0 - previewRect.top) * zoomRatio,
+                                'y1': (app.selection.y1 - previewRect.top) * zoomRatio
+                            })
                             .convert(),
                 image = canvas2Image(canvas),
                 rect = document.querySelector('.viewport').getBoundingClientRect(),
-                ifRotate = app.rotate.ifRotate,
-                ratio = ifRotate ? 
-                Math.max(1, canvas.height / rect.width, canvas.width / rect.height) :
-                Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
+                ratio = Math.max(1, canvas.width / rect.width, canvas.height / rect.height);
             image.style.width = canvas.width / ratio + 'px';
             image.style.height = canvas.height / ratio + 'px';
-            image.style.transform = app.rotate.angle !== 0 ? `rotate(${app.rotate.angleDeg})` : '';
-            image.style.marginTop = ifRotate ? (canvas.width - canvas.height) / 2 / ratio + 'px' : '0px';
+            image.style.marginTop = '0px';
             image.style.marginLeft = ( document.body.getBoundingClientRect().width - canvas.width / ratio ) / 2 + 'px';
             cleanUp();
             document.querySelector('div.viewport').appendChild(image);
