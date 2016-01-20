@@ -28,20 +28,21 @@ let cleanUp = function() {
 
 let previewRender = function() {
         const rect = app.rect,
-            canvas = imageConverter(image2Canvas(app.preview))
-                    .range(app.range)
-                    .selection({
+            selection = {
                         'x0': app.selection.x0 - rect.left,
                         'x1': app.selection.x1 - rect.left,
                         'y0': app.selection.y0 - rect.top,
                         'y1': app.selection.y1 - rect.top
-                    })
+                    },
+            canvas = imageConverter(image2Canvas(app.preview))
+                    .range(app.range)
+                    .selection(selection)
                     .convert(),
             previousCanvas = document.querySelector('canvas#result');
         previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
         previousCanvas.style.display = '';
                 
-        app.preivewer.canvas(previousCanvas).range(app.range);
+        app.preivewer.canvas(previousCanvas).range(app.range).selection(selection);
 }
 
 let loader = imageLoader(document.querySelector('input'))
@@ -58,7 +59,7 @@ let loader = imageLoader(document.querySelector('input'))
         app.preview.id = 'origin';
         app.preview.style.display = '';
         
-        app.origin = image2Canvas(img);
+        app.origin = image2Canvas(img, app.rotate);
         
         const dom = document.querySelector('canvas#origin');
         dom.parentNode.replaceChild(app.preview, dom);
@@ -124,7 +125,7 @@ document.querySelector('.icon-export').onclick = function() {
             document.querySelector('canvas#result') : document.querySelector('canvas#origin'))
             .getBoundingClientRect(),
             zoomRatio = getRatio(800)(app.origin.width, app.origin.height),
-            canvas = imageConverter(image2Canvas(app.origin, app.rotate))
+            canvas = imageConverter(image2Canvas(app.origin))
                             .range(app.range)
                             .selection({
                                 'x0': (app.selection.x0 - previewRect.left) * zoomRatio,
