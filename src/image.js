@@ -118,13 +118,9 @@ let image2Canvas = function(img, rotate) {
     if (!!rotate) {
         canvas.width = rotate.ifRotate ? img.height : img.width;
         canvas.height = rotate.ifRotate ? img.width : img.height;
-        context.translate(img.width / 2, img.height / 2);
+        context.translate(canvas.width / 2, canvas.height / 2);
         context.rotate(rotate.angle);
-        if (rotate.ifRotate) {
-            context.drawImage(img, -img.height / 2, -img.width / 2, img.height, img.width);
-        } else {
-            context.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
-        }
+        context.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);  
     } else {
         canvas.width = img.width;
         canvas.height = img.height;
