@@ -82,7 +82,7 @@ let loader = imageLoader(document.querySelector('input'))
         
         app.preivewer = imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
             app.rotate).start();
-        document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
+        //document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
         
         select(
             document.querySelector('canvas#origin'), 

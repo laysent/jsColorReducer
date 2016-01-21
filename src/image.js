@@ -231,7 +231,7 @@ let imageConverter = function(canvas) {
     return ret;
 }
 
-let imagePreviewer = function(canvas , rect, origin, preview, rotateHelper) {
+let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
     let variable = {
         canvas: undefined,  // canvas for image with preivew size and rendered color
         preview: undefined, // canvas for displaying zoomed preview result
@@ -256,7 +256,14 @@ let imagePreviewer = function(canvas , rect, origin, preview, rotateHelper) {
             previewContext = variable.preview.getContext('2d'),
             originContext = variable.origin.getContext('2d'),
             ratio = getRatio(800)(variable.origin.width, variable.origin.height),
-            inRange = (r, g, b) => inRangeHelper(getHue(r, g, b), variable.range);
+            inRange = (r, g, b) => inRangeHelper(getHue(r, g, b), variable.range),
+            inSelection = (idx, position, size) => {
+                // TODO: Chrome display incorrectly, when ratio isn't 1
+                let y = position.y * ratio - size / 2 + Math.floor(idx / 4 / size),
+                    x = position.x * ratio - size / 2 + Math.floor(idx / 4 % size);
+                return variable.selection.x0 * ratio <= x && variable.selection.x1 * ratio >= x &&
+                    variable.selection.y0 * ratio <= y && variable.selection.y1 * ratio >= y;
+            };
 
         variable.preview.width = size;
         variable.preview.height = size;
@@ -264,16 +271,15 @@ let imagePreviewer = function(canvas , rect, origin, preview, rotateHelper) {
         
         variable.canvas.subscription = move.sample(50).map(p => {
             return {'x': p.clientX - rect.left, 'y': p.clientY - rect.top}
-        }).subscribe(p => {
-            if (!variable.range) return;
-            let position = rotateHelper.position(p, variable.canvas),
-                originPixel = originContext.getImageData(
-                    Math.max(position.x * ratio - size / 2, 0),
-                    Math.max(position.y * ratio - size / 2, 0),
+        }).subscribe(position => {
+            if (!variable.range || !variable.selection) return;
+              let originPixel = originContext.getImageData(
+                    position.x * ratio - size / 2,
+                    position.y * ratio - size / 2,
                     size, size),
                 originData = originPixel.data;
             for(let i = 0; i < originData.length; i += 4) {
-                if (!inRange(originData[i], originData[i + 1], originData[i + 2])) {
+                if (!inSelection(i, position, size) || !inRange(originData[i], originData[i + 1], originData[i + 2])) {
                     originData[i] = originData[i + 1] = originData[i + 2] = 
                         toGrey(originData[i], originData[i + 1], originData[i + 2]);
                 }
@@ -293,6 +299,21 @@ let imagePreviewer = function(canvas , rect, origin, preview, rotateHelper) {
         variable.range = [];
         variable.range[0] = range[0] / ( 2 * Math.PI ) * 360;
         variable.range[1] = range[1] / ( 2 * Math.PI ) * 360;
+        return ret;
+    }
+    
+    ret.selection = function(selection) {
+        if (selection.x0 === undefined || selection.x1 === undefined ||
+            selection.y0 === undefined || selection.y1 === undefined ) throw "Not Selection!";
+        else if (!variable.canvas) throw "Canvas need to be defined first!";
+        else {
+            variable.selection = {
+                'x0': Math.max(Math.min(selection.x0, variable.canvas.width), 0),
+                'y0': Math.max(Math.min(selection.y0, variable.canvas.height), 0),
+                'x1': Math.min(Math.max(selection.x1, 0), variable.canvas.width),
+                'y1': Math.min(Math.max(selection.y1, 0), variable.canvas.height)
+            };
+        }
         return ret;
     }
     
