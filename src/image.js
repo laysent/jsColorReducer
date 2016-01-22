@@ -217,7 +217,8 @@ let imageConverter = function(canvas) {
             imageData = context.getImageData(0, 0, variable.canvas.width, variable.canvas.height),
             pixelArray = imageData.data;
         for (let i = 0; i < pixelArray.length; i += 4) {
-            if (!inSelection(i) || !inRange(getHue(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]))) {
+            if (!inSelection(i) || 
+                !inRange(getHue(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]))) {
                 let grey = toGrey(pixelArray[i], pixelArray[i + 1], pixelArray[i + 2]);
                 pixelArray[i] = pixelArray[i + 1] = pixelArray[i + 2] = grey;
             }
@@ -258,7 +259,6 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
             ratio = getRatio(800)(variable.origin.width, variable.origin.height),
             inRange = (r, g, b) => inRangeHelper(getHue(r, g, b), variable.range),
             inSelection = (idx, position, size) => {
-                // TODO: Chrome display incorrectly, when ratio isn't 1
                 let y = position.y * ratio - size / 2 + Math.floor(idx / 4 / size),
                     x = position.x * ratio - size / 2 + Math.floor(idx / 4 % size);
                 return variable.selection.x0 * ratio <= x && variable.selection.x1 * ratio >= x &&
@@ -274,12 +274,20 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
         }).subscribe(position => {
             if (!variable.range || !variable.selection) return;
               let originPixel = originContext.getImageData(
-                    position.x * ratio - size / 2,
-                    position.y * ratio - size / 2,
+                    // Starting point need to be rounded first, to make sure all browser
+                    // returns same result after getImageData() call.
+                    // With starting point not rounded, Chrome will give rectangle
+                    // one pixel larger than given size, while IE still provides the same size
+                    // as given in 3rd and 4th parameters.
+                    //
+                    // Not exact size will cause `inSelection` function produce incorrect result
+                    Math.floor(position.x * ratio - size / 2),
+                    Math.floor(position.y * ratio - size / 2),
                     size, size),
                 originData = originPixel.data;
             for(let i = 0; i < originData.length; i += 4) {
-                if (!inSelection(i, position, size) || !inRange(originData[i], originData[i + 1], originData[i + 2])) {
+                if (!inSelection(i, position, size) || 
+                    !inRange(originData[i], originData[i + 1], originData[i + 2])) {
                     originData[i] = originData[i + 1] = originData[i + 2] = 
                         toGrey(originData[i], originData[i + 1], originData[i + 2]);
                 }
@@ -304,9 +312,11 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
     
     ret.selection = function(selection) {
         if (selection.x0 === undefined || selection.x1 === undefined ||
-            selection.y0 === undefined || selection.y1 === undefined ) throw "Not Selection!";
-        else if (!variable.canvas) throw "Canvas need to be defined first!";
-        else {
+            selection.y0 === undefined || selection.y1 === undefined ) { 
+            throw "Not Selection!";
+        } else if (!variable.canvas) {
+            throw "Canvas need to be defined first!";
+        } else {
             variable.selection = {
                 'x0': Math.max(Math.min(selection.x0, variable.canvas.width), 0),
                 'y0': Math.max(Math.min(selection.y0, variable.canvas.height), 0),
