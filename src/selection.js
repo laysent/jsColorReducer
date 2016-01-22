@@ -6,6 +6,7 @@ let select = function(registeredDom, selectionDom, onSelectionChanged) {
             selectionDom.style.top = '0px';
             selectionDom.style.width = '0px';
             selectionDom.style.height = '0px';
+            selectionDom.style.display = 'block';
         },
         parentDom = registeredDom.parentNode,
         boundary = registeredDom.getBoundingClientRect();
@@ -44,7 +45,7 @@ let select = function(registeredDom, selectionDom, onSelectionChanged) {
         cleanSelection();
     });
     Ups.subscribe(function(point) {
-        
+        selectionDom.style.display = 'none';
     });
     Drags.sample(50).subscribe(function(point) {
         selectionDom.style.left = point.x0 + 'px';
