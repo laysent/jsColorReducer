@@ -252,8 +252,7 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
         variable.canvas.subscription && variable.canvas.subscription.dispose();
         let move = variable.canvas.move = 
             variable.canvas.move || Rx.Observable.fromEvent(variable.canvas, 'mousemove'),
-            
-            rect = variable.rect, 
+             
             previewContext = variable.preview.getContext('2d'),
             originContext = variable.origin.getContext('2d'),
             ratio = getRatio(800)(variable.origin.width, variable.origin.height),
@@ -270,7 +269,7 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
         variable.preview.style.display = 'block';
         
         variable.canvas.subscription = move.sample(50).map(p => {
-            return {'x': p.clientX - rect.left, 'y': p.clientY - rect.top}
+            return {'x': p.clientX - variable.rect.left, 'y': p.clientY - variable.rect.top}
         }).subscribe(position => {
             if (!variable.range || !variable.selection) return;
               let originPixel = originContext.getImageData(
@@ -327,7 +326,13 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
         return ret;
     }
     
-    variable.rect = rect;
+    ret.rect = function(rect) {
+        if (rect !== undefined)
+            variable.rect = rect;
+        return ret;
+    }
+    
+    ret.rect(rect);
     ret.canvas(canvas);
     ret.origin(origin);
     ret.preview(preview);

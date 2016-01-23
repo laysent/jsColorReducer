@@ -1,4 +1,5 @@
 "use strict";
+
 let cleanUp = function() {
     Array.prototype.slice.apply(document.querySelectorAll('canvas')).forEach(node => {
         let context = node.getContext('2d');
@@ -24,25 +25,19 @@ let cleanUp = function() {
     selectionDom.style.top = '0px';
     selectionDom.style.left = '0px';
     
+    document.querySelector('#dragndrop').style.display = 'none'; 
 }
 
 let previewRender = function() {
-        const rect = app.rect,
-            selection = {
-                        'x0': app.selection.x0 - rect.left,
-                        'x1': app.selection.x1 - rect.left,
-                        'y0': app.selection.y0 - rect.top,
-                        'y1': app.selection.y1 - rect.top
-                    },
-            canvas = imageConverter(image2Canvas(app.preview))
+        const canvas = imageConverter(image2Canvas(app.preview))
                     .range(app.range)
-                    .selection(selection)
+                    .selection(app.selection)
                     .convert(),
             previousCanvas = document.querySelector('canvas#result');
         previousCanvas.getContext('2d').drawImage(canvas, 0, 0);
         previousCanvas.style.display = '';
                 
-        app.preivewer.canvas(previousCanvas).range(app.range).selection(selection);
+        app.previewer.canvas(previousCanvas).range(app.range).selection(app.selection);
 }
 
 let loader = imageLoader(document.querySelector('input'))
@@ -66,10 +61,10 @@ let loader = imageLoader(document.querySelector('input'))
         const rect = document.querySelector('canvas#origin').getBoundingClientRect();
         app.rect = rect;
         app.selection = {
-            'x0': rect.left,
-            'x1': rect.left + rect.width,
-            'y0': rect.top,
-            'y1': rect.top + rect.height
+            'x0': 0,
+            'x1': rect.width,
+            'y0': 0,
+            'y1': rect.height
         }
         document.querySelector('svg').style.display = '';
         let result = document.querySelector('canvas#result');
@@ -80,7 +75,7 @@ let loader = imageLoader(document.querySelector('input'))
         document.querySelector('.info-zoom').innerText = `${Math.floor((100 / getRatio(800)(img.width, img.height)))}%`
         document.querySelector('.info-resolution').innerText = app.rotate.toString(img.width, img.height);
         
-        app.preivewer = imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
+        app.previewer = imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
             app.rotate).start();
         //document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
         
@@ -89,7 +84,12 @@ let loader = imageLoader(document.querySelector('input'))
             document.querySelector('div.selection'),
             selectionObservable => {
                 selectionObservable.debounce(100).subscribe(selection => {
-                    app.selection = selection;
+                    app.selection = {
+                        'x0': selection.x0 - app.rect.left,
+                        'x1': selection.x1 - app.rect.left,
+                        'y0': selection.y0 - app.rect.top,
+                        'y1': selection.y1 - app.rect.top
+                    };
                     previewRender();
                     document.querySelector('canvas#origin').style.display = 'none';
                 })
@@ -128,10 +128,10 @@ document.querySelector('.icon-export').onclick = function() {
             canvas = imageConverter(image2Canvas(app.origin))
                             .range(app.range)
                             .selection({
-                                'x0': (app.selection.x0 - previewRect.left) * zoomRatio,
-                                'x1': (app.selection.x1 - previewRect.left) * zoomRatio,
-                                'y0': (app.selection.y0 - previewRect.top) * zoomRatio,
-                                'y1': (app.selection.y1 - previewRect.top) * zoomRatio
+                                'x0': (app.selection.x0) * zoomRatio,
+                                'x1': (app.selection.x1) * zoomRatio,
+                                'y0': (app.selection.y0) * zoomRatio,
+                                'y1': (app.selection.y1) * zoomRatio
                             })
                             .convert(),
                 image = canvas2Image(canvas),
@@ -141,9 +141,11 @@ document.querySelector('.icon-export').onclick = function() {
             image.style.height = canvas.height / ratio + 'px';
             image.style.marginTop = '0px';
             image.style.marginLeft = ( document.body.getBoundingClientRect().width - canvas.width / ratio ) / 2 + 'px';
-            cleanUp();
-            document.querySelector('div.viewport').appendChild(image);
-            document.querySelector('svg').style.display = 'none';   
+            image.onload = function() {
+                cleanUp();
+                document.querySelector('div.viewport').appendChild(image);
+                document.querySelector('svg').style.display = 'none';
+            }
     }, 100);    
 }
 
@@ -180,3 +182,17 @@ document.querySelector('#dragndrop'),
 document.querySelector('input'));
 
 document.body.addEventListener('touchmove', e => {e.preventDefault()}, true);
+
+(function() {
+    let resizeEvent = Rx.Observable.fromEvent(window, 'resize');
+    resizeEvent.subscribe(e => {
+        let rect = document.querySelector('canvas#origin').getBoundingClientRect();
+        if (rect.width == 0 || rect.height == 0) {
+            rect = document.querySelector('canvas#result').getBoundingClientRect();
+        }
+        if (rect.width !== 0 && rect.height !== 0) {
+            app.rect = rect;
+            app.previewer.rect(rect);
+        }
+    });
+})();
