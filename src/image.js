@@ -106,7 +106,7 @@ let previewGenerator = function(obj, size) {
 
 let canvas2Image = function(canvas) {
     let image = new Image();
-    image.src = canvas.toDataURL('image/png');
+    image.src = canvas.toDataURL('image/jpeg', .9)
     return image;
 }
 
