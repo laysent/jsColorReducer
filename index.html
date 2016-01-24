@@ -2,6 +2,7 @@
 <html>
     <head>
         <link href="./style.css" rel="stylesheet" type="text/css" />
+        <meta charset='utf8' />
     </head>
     <body>
         <div class="toolbar">
@@ -36,23 +37,6 @@
             <img src='./img/loading.png'/>
         </div>
         <div class="selection"></div>
-        <script>
-            var app = {
-                'preview': undefined,
-                'origin': undefined,
-                'range': [0, 2 * Math.PI],
-                'selection': undefined,
-                'rotate': undefined
-            };
-        </script>
-        <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.7/rx.all.js" type="text/javascript"></script>
-        <script src="./src/rotate.js" type="text/javascript"></script>
-        <script src="./src/exif.js" type="text/javascript"></script>
-        <script src="./src/image.js"  type="text/javascript" ></script>
-        <script src="./src/d3-palette.js" type="text/javascript"></script>
-        <script src="./src/draganddrop.js" type="text/javascript"></script>
-        <script src="./src/selection.js" type="text/javascript"></script>
-        <script src="./src/app.js" type="text/javascript"></script>
+        <script src="./bundle.js" type="text/javascript"></script>
     </body>
 </html>

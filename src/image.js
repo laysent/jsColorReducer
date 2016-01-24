@@ -1,4 +1,9 @@
 "use strict";
+
+const app = require('./global.js').app;
+const Rx = require('rx');
+const d3 = require('d3');
+
 let imageLoader = function(filepathDom) {
     let variable = {
         dom: undefined,
@@ -339,3 +344,11 @@ let imagePreviewer = function(canvas, rect, origin, preview, rotateHelper) {
     
     return ret;
 }
+
+exports.imageConverter = imageConverter;
+exports.image2Canvas = image2Canvas;
+exports.canvas2Image = canvas2Image;
+exports.previewGenerator = previewGenerator;
+exports.getRatio = getRatio;
+exports.imagePreviewer = imagePreviewer;
+exports.imageLoader = imageLoader;

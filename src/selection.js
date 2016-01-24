@@ -1,5 +1,8 @@
 "use strict";
-let select = function(registeredDom, selectionDom, onSelectionChanged) {
+
+const Rx = require("Rx");
+
+exports.select = function(registeredDom, selectionDom, onSelectionChanged) {
     const pointExtractor = p => p.changedTouches ? p.changedTouches[0] : p,
         cleanSelection = () => {
             selectionDom.style.left = '0px';
@@ -8,8 +11,7 @@ let select = function(registeredDom, selectionDom, onSelectionChanged) {
             selectionDom.style.height = '0px';
             selectionDom.style.display = 'block';
         },
-        parentDom = registeredDom.parentNode,
-        boundary = registeredDom.getBoundingClientRect();
+        parentDom = registeredDom.parentNode;
     let Downs = Rx.Observable.merge(
         Rx.Observable.fromEvent(parentDom, 'mousedown'),
         Rx.Observable.fromEvent(parentDom, 'touchstart'),

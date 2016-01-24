@@ -360,7 +360,7 @@
                 handleBinaryFile(arrayBuffer);
 
             } else if (/^blob\:/i.test(img.src)) { // Object URL
-                var fileReader = new FileReader();
+                let fileReader = new FileReader();
                 fileReader.onload = function(e) {
                     handleBinaryFile(e.target.result);
                 };
@@ -382,7 +382,7 @@
                 http.send(null);
             }
         } else if (window.FileReader && (img instanceof window.Blob || img instanceof window.File)) {
-            var fileReader = new FileReader();
+            let fileReader = new FileReader();
             fileReader.onload = function(e) {
                 if (debug) console.log("Got file of length " + e.target.result.byteLength);
                 handleBinaryFile(e.target.result);
@@ -644,7 +644,7 @@
 
     function getStringFromDB(buffer, start, length) {
         var outstr = "";
-        for (n = start; n < start+length; n++) {
+        for (var n = start; n < start+length; n++) {
             outstr += String.fromCharCode(buffer.getUint8(n));
         }
         return outstr;
@@ -797,11 +797,4 @@
     EXIF.readFromBinaryFile = function(file) {
         return findEXIFinJPEG(file);
     }
-
-    if (typeof define === 'function' && define.amd) {
-        define('exif-js', [], function() {
-            return EXIF;
-        });
-    }
-}.call(this));
-
+}.call(window));

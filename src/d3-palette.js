@@ -1,4 +1,8 @@
 "use strict";
+
+const d3 = require('d3');
+const Rx = require('rx');
+
 (function() {
   // self: plugin
   // variable: object where configuration stored
@@ -243,3 +247,5 @@
     return palette;
   }
 })();
+
+exports.d3_palette = d3.palette;

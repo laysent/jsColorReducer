@@ -1,6 +1,6 @@
 "use strict";
 
-let dragndrop = function(listener, displayer, input) {
+exports.dragndrop = function(listener, displayer, input) {
     listener.addEventListener('dragenter', function(e) {
         e.stopPropagation();
         e.preventDefault();

@@ -1,5 +1,5 @@
 "use strict";
-let rotateHelper = function(orientation) {
+exports.rotateHelper = function(orientation) {
     let ifRotate = orientation == 6 || orientation == 8,
         angle = {
             '1': 0,
