@@ -21,8 +21,6 @@ let cleanUp = function() {
   const selection = document.querySelector('svg g.selection');
   selection && document.querySelector('svg').removeChild(selection);
 
-  document.querySelector('.icon-export').disabled = true;
-
   if (document.querySelector('div.viewport img')) {
     document.querySelector('div.viewport').removeChild(document.querySelector('div.viewport img'));
   }
@@ -87,7 +85,6 @@ let loader = image.imageLoader(document.querySelector('input'))
     
     app.previewer = image.imagePreviewer(result, app.preview.getBoundingClientRect(), app.origin, document.querySelector('canvas#preview'),
       app.rotate).start();
-    //document.querySelector('canvas#preview').style.transform = `rotate(${app.rotate.angleDeg})`;
     
     select(
       document.querySelector('canvas#origin'), 
