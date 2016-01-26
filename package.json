@@ -1,0 +1,35 @@
+{
+  "name": "color_reducer",
+  "version": "1.0.0",
+  "description": "Reduce color of image",
+  "main": "pipeline.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib && webpack ./lib/pipeline.js bundle.js && rm -r lib",
+    "lint": "eslint src/image.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laysent/ColorReducer.git"
+  },
+  "keywords": [
+    "Image Processing"
+  ],
+  "author": "LaySent",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/laysent/ColorReducer/issues"
+  },
+  "homepage": "https://github.com/laysent/ColorReducer#readme",
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-eslint": "^5.0.0-beta6",
+    "babel-preset-es2015": "^6.3.13",
+    "d3": "^3.5.13",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^4.0.0",
+    "exif-js": "^2.1.1",
+    "rx": "^4.0.7",
+    "webpack": "^1.12.12"
+  }
+}

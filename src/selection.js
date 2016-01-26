@@ -1,6 +1,6 @@
 "use strict";
 
-const Rx = require('Rx');
+const Rx = require('rx');
 
 exports.select = function (registeredDom, _selectionDom, onSelectionChanged) {
   const selectionDom = _selectionDom;
