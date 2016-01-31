@@ -61,7 +61,7 @@ image.imageLoader(document.querySelector('input'))
     app.rotate = rotateHelper(
       EXIF.getTag(this, 'Orientation')
       );
-    app.preview = image.previewGenerator(img, 800);
+    app.preview = image.previewGenerator(img, app.size);
     app.preview.id = 'origin';
     app.preview.style.display = '';
 
@@ -84,7 +84,7 @@ image.imageLoader(document.querySelector('input'))
     result.height = app.preview.height;
 
     document.querySelector('.info-zoom').innerText =
-      `${Math.floor((100 / image.getRatio(800)(img.width, img.height)))}%`;
+      `${Math.floor((100 / image.getRatio(app.size)(img.width, img.height)))}%`;
     document.querySelector('.info-resolution').innerText =
       app.rotate.toString(img.width, img.height);
 
@@ -137,7 +137,7 @@ d3.select('svg')
 document.querySelector('.icon-export').onclick = function () {
   document.querySelector('.loading').style.display = 'block';
   setTimeout(() => {
-    const zoomRatio = image.getRatio(800)(app.origin.width, app.origin.height);
+    const zoomRatio = image.getRatio(app.size)(app.origin.width, app.origin.height);
     const canvas = image.imageConverter(image.image2Canvas(app.origin))
               .range(app.range)
               .selection({

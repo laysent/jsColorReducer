@@ -106,7 +106,7 @@ const previewGenerator = function (obj, size) {
     throw new Error('Invalid input parameter!');
   }
   const newCanvas = document.createElement('canvas');
-  const ratio = getRatio(size || 800)(obj.width, obj.height);
+  const ratio = getRatio(size || app.size)(obj.width, obj.height);
 
   app.rotate.display(obj, newCanvas, ratio);
 
@@ -270,7 +270,7 @@ const imagePreviewer = function (canvas, rect, origin, preview, rotateHelper) {
 
     const previewContext = variable.preview.getContext('2d');
     const originContext = variable.origin.getContext('2d');
-    const ratio = getRatio(800)(variable.origin.width, variable.origin.height);
+    const ratio = getRatio(app.size)(variable.origin.width, variable.origin.height);
     const inRange = (r, g, b) => inRangeHelper(getHue(r, g, b), variable.range);
     const inSelection = (idx, position) => {
       const y = position.y * ratio - size / 2 + Math.floor(idx / 4 / size);
