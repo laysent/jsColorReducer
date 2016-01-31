@@ -95,7 +95,7 @@ image.imageLoader(document.querySelector('input'))
       document.querySelector('canvas#preview'),
       app.rotate).start();
 
-    select(
+    app.selectionUnsubscribe = select(
       document.querySelector('canvas#origin'),
       document.querySelector('div.selection'),
       selectionObservable => {
@@ -159,18 +159,21 @@ document.querySelector('.icon-export').onclick = function () {
       cleanUp();
       document.querySelector('div.viewport').appendChild(img);
       document.querySelector('svg').style.display = 'none';
+      app.selectionUnsubscribe();
     };
   }, 100);
 };
 
 Array.prototype.slice.apply(document.querySelectorAll('i')).forEach(i => {
   const node = i;
-  node.mousedown = Rx.Observable.fromEvent(i, 'mousedown');
-  node.mousedown.forEach(() => {
+  node.down = Rx.Observable.merge(Rx.Observable.fromEvent(i, 'mousedown'),
+    Rx.Observable.fromEvent(i, 'touchstart'));
+  node.down.forEach(() => {
     node.className = `${node.className.split(' ')[0]} pressed`;
   });
-  node.mouseup = Rx.Observable.fromEvent(i, 'mouseup');
-  node.mouseup.forEach(() => {
+  node.up = Rx.Observable.merge(Rx.Observable.fromEvent(i, 'mouseup'),
+    Rx.Observable.fromEvent(i, 'touchend'));
+  node.up.forEach(() => {
     node.className = node.className.split(' ')[0];
   });
 });
@@ -181,12 +184,16 @@ document.querySelector('.icon-import').onclick = function () {
 
 const origin = document.querySelector('.icon-origin');
 
-origin.mousedown.forEach(() => {
+origin.down.forEach((e) => {
+  e.stopPropagation();
+  e.preventDefault();
   document.getElementById('origin').style.display = 'block';
   document.getElementById('result').style.display = 'none';
 });
 
-origin.mouseup.forEach(() => {
+origin.up.forEach((e) => {
+  e.stopPropagation();
+  e.preventDefault();
   document.getElementById('origin').style.display = 'none';
   document.getElementById('result').style.display = 'block';
 });
@@ -209,4 +216,7 @@ document.body.addEventListener('touchmove', e => {e.preventDefault();}, true);
       app.previewer.rect(rect);
     }
   });
+  if (app.isMobile) {
+    document.querySelector('.icon-origin').style.display = 'none';
+  }
 }());

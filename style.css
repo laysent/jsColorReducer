@@ -200,4 +200,7 @@ canvas#preview {
 }
 
 @media screen and (max-width:767px) {
+    #preview {
+        display: none;
+    }
 }

@@ -260,6 +260,9 @@ const imagePreviewer = function (canvas, rect, origin, preview, rotateHelper) {
   };
 
   ret.start = function () {
+    if (app.isMobile) {
+      return ret;
+    }
     const size = 200;
 
     if (!!variable.canvas.subscription) {

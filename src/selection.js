@@ -45,13 +45,13 @@ exports.select = function (registeredDom, _selectionDom, onSelectionChanged) {
         y1: Math.max(startPoint.y, point.clientY),
       };
     }));
-  Downs.subscribe(() => {
+  const downSubscription = Downs.subscribe(() => {
     cleanSelection();
   });
-  Ups.subscribe(() => {
+  const upSubscription = Ups.subscribe(() => {
     selectionDom.style.display = 'none';
   });
-  Drags.sample(50).subscribe((_point) => {
+  const dragSubscription = Drags.sample(50).subscribe((_point) => {
     const point = _point;
     selectionDom.style.left = `${point.x0}px`;
     selectionDom.style.top = `${point.y0}px`;
@@ -59,4 +59,10 @@ exports.select = function (registeredDom, _selectionDom, onSelectionChanged) {
     selectionDom.style.height = `${(point.y1 - point.y0)}px`;
   });
   onSelectionChanged(Drags);
+
+  return () => {
+    downSubscription.dispose();
+    upSubscription.dispose();
+    dragSubscription.dispose();
+  };
 };

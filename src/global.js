@@ -6,7 +6,9 @@ const app = {
   range: [0, 2 * Math.PI],
   selection: undefined,
   rotate: undefined,
-  size: Math.min(window.innerHeight || document.body.clientHeight, window.innerWidth || document.body.clientWidth)
+  size: Math.min(window.innerHeight || document.body.clientHeight,
+    window.innerWidth || document.body.clientWidth),
+  isMobile: /mobile/i.test(navigator.userAgent),
 };
 
 exports.app = app;
