@@ -120,8 +120,8 @@ const Rx = require('rx');
     const pointExtractor = p => p.changedTouches ? p.changedTouches[0] : p;
 
     const palette = function (svg) {
-      svg.on('mousedown', (e) => {
-        const event = e;
+      svg.on('mousedown', () => {
+        const event = d3.event;
         if (!!event.preventDefault) {
           event.preventDefault();
         } else {
@@ -144,8 +144,8 @@ const Rx = require('rx');
       .enter()
       .append('path')
       .attr('d', arc)
-      .on('mousedown', (e) => {
-        const event = e;
+      .on('mousedown', () => {
+        const event = d3.event;
         if (!!event.preventDefault) {
           event.preventDefault();
         } else {
